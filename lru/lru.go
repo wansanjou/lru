@@ -46,14 +46,15 @@ func (c *Cache) Put(key int, value int) {
 			value: value,
 		}
 
+		c.cache[key] = newNode
+		c.addToHead(newNode)
+
 		if len(c.cache) > c.capacity {
 			c.removeTail()
 		}
-
-		c.cache[key] = newNode
-		c.addToHead(newNode)
 	}
 }
+
 func (c *Cache) moveToHead(node *Node) {
 	c.removeNode(node)
 	c.addToHead(node)
