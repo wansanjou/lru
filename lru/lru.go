@@ -1,5 +1,7 @@
 package lru
 
+import "fmt"
+
 // Node represents a single entry in the cache. It is not exported.
 type Node struct {
 	key   int
@@ -23,11 +25,6 @@ func New(capacity int) *Cache {
 		cache:    make(map[int]*Node),
 	}
 
-	c.head = &Node{}
-	c.tail = &Node{}
-	c.head.next = c.tail
-	c.tail.prev = c.head
-
 	return c
 }
 
@@ -49,7 +46,7 @@ func (c *Cache) Put(key int, value int) {
 			value: value,
 		}
 
-		if len(c.cache) >= c.capacity {
+		if len(c.cache) > c.capacity {
 			c.removeTail()
 		}
 
@@ -63,21 +60,64 @@ func (c *Cache) moveToHead(node *Node) {
 }
 
 func (c *Cache) removeNode(node *Node) {
-	node.prev.next = node.next
-	node.next.prev = node.prev
+	if node.prev != nil {
+		node.prev.next = node.next
+	} else {
+		c.head = node.next
+	}
+
+	if node.next != nil {
+		node.next.prev = node.prev
+	} else {
+		c.tail = node.prev
+	}
+
 }
 
 func (c *Cache) addToHead(node *Node) {
-	node.prev = c.head
-	node.next = c.head.next
+	node.prev = nil
+	node.next = c.head
+	if c.head != nil {
+		c.head.prev = node
+	}
+	c.head = node
 
-	c.head.next.prev = node
-	c.head.next = node
+	if c.tail == nil {
+		c.tail = node
+	}
 }
 
-func (c *Cache) removeTail() *Node {
-	lastNode := c.tail.prev
-	c.removeNode(lastNode)
-	delete(c.cache, lastNode.key)
-	return lastNode
+func (c *Cache) removeTail() {
+	if c.tail == nil {
+		return
+	}
+
+	delete(c.cache, c.tail.key)
+
+	if c.tail.prev != nil {
+		c.tail = c.tail.prev
+		c.tail.next = nil
+	} else {
+		c.head = nil
+		c.tail = nil
+	}
+
+}
+
+func (c *Cache) PrintList() {
+	if c.head == nil {
+		fmt.Println("Empty cache")
+		return
+	}
+
+	fmt.Print("Head -> ")
+	current := c.head
+	for current != nil {
+		fmt.Printf("[%d:%d]", current.key, current.value)
+		if current.next != nil {
+			fmt.Print(" -> ")
+		}
+		current = current.next
+	}
+	fmt.Println(" <- Tail")
 }

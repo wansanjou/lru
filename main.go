@@ -44,24 +44,26 @@ func main() {
 		switch cmd {
 		case "GET":
 			if len(tokens) != 2 {
-				fmt.Println("Invalid PUT line:", line)
+				fmt.Println("Invalid GET line:", line)
 				continue
 			}
-
 			key, _ := strconv.Atoi(tokens[1])
 			if val, ok := cache.Get(key); ok {
 				fmt.Printf("GET %d -> %d\n", key, val)
 			} else {
 				fmt.Printf("GET %d -> -1\n", key)
 			}
+			cache.PrintList()
+
 		case "PUT":
 			if len(tokens) != 3 {
-				fmt.Println("Invalid GET line:", line)
+				fmt.Println("Invalid PUT line:", line)
 				continue
 			}
 			key, _ := strconv.Atoi(tokens[1])
 			value, _ := strconv.Atoi(tokens[2])
 			cache.Put(key, value)
+			cache.PrintList()
 
 		default:
 			fmt.Println("Error command", cmd)
