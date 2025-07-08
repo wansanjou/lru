@@ -61,28 +61,38 @@ func (c *Cache) moveToHead(node *Node) {
 }
 
 func (c *Cache) removeNode(node *Node) {
+	// If node has a prev node, update its next pointer to skip current node.
 	if node.prev != nil {
 		node.prev.next = node.next
 	} else {
+		// If node has no prev node, it is head. Move head to next node.
 		c.head = node.next
 	}
 
+	// If node has a next node, update its prev pointer to skip current node.
 	if node.next != nil {
 		node.next.prev = node.prev
 	} else {
+		// If node has no next node, it is tail. Move tail to prev node.
 		c.tail = node.prev
 	}
 
 }
 
 func (c *Cache) addToHead(node *Node) {
+	// The new node will be at front, so it has no prev node.
 	node.prev = nil
+	// The current head will become next node of new head.
 	node.next = c.head
+
+	// If list is not empty, update current head is prev to point back to new node.
 	if c.head != nil {
 		c.head.prev = node
 	}
+	// Move head pointer to new node.
 	c.head = node
 
+	// If list was empty "tail is nil", set tail to new node too.
 	if c.tail == nil {
 		c.tail = node
 	}
